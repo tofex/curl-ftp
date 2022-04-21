@@ -3,6 +3,8 @@
 namespace Tofex\CurlFtp;
 
 use Exception;
+use Tofex\Help\Arrays;
+use Tofex\Help\Variables;
 
 /**
  * @author      Andreas Knollmann
@@ -11,6 +13,12 @@ use Exception;
  */
 class Client
 {
+    /** @var Variables */
+    protected $variableHelper;
+
+    /** @var Arrays */
+    protected $arrayHelper;
+
     /** @var resource */
     private $curlHandle;
 
@@ -22,6 +30,16 @@ class Client
 
     /** @var bool */
     private $useSsl = false;
+
+    /**
+     * @param Variables $variableHelper
+     * @param Arrays    $arrayHelper
+     */
+    public function __construct(Variables $variableHelper, Arrays $arrayHelper)
+    {
+        $this->variableHelper = $variableHelper;
+        $this->arrayHelper = $arrayHelper;
+    }
 
     /**
      * @return void
@@ -40,18 +58,19 @@ class Client
      */
     public function open(array $args = [])
     {
-        $hostName = $this->getValue($args, 'host');
+        $hostName = $this->arrayHelper->getValue($args, 'host');
 
-        if ($this->isEmpty($hostName)) {
+        if ($this->variableHelper->isEmpty($hostName)) {
             throw new Exception('The specified host is empty. Set the host and try again.');
         }
 
-        $port = $this->getValue($args, 'port', 21);
-        $userName = $this->getValue($args, 'user', 'anonymous');
-        $password = $this->getValue($args, 'password', $userName === 'anonymous' ? 'anonymous@noserver.com' : '');
-        $useSsl = $this->getValue($args, 'ssl', false);
-        $usePassiveMode = $this->getValue($args, 'passive', false);
-        $timeout = $this->getValue($args, 'timeout', 30);
+        $port = $this->arrayHelper->getValue($args, 'port', 21);
+        $userName = $this->arrayHelper->getValue($args, 'user', 'anonymous');
+        $password =
+            $this->arrayHelper->getValue($args, 'password', $userName === 'anonymous' ? 'anonymous@noserver.com' : '');
+        $useSsl = $this->arrayHelper->getValue($args, 'ssl', false);
+        $usePassiveMode = $this->arrayHelper->getValue($args, 'passive', false);
+        $timeout = $this->arrayHelper->getValue($args, 'timeout', 30);
 
         $this->connect($hostName, $port, $userName, $password, $useSsl, $usePassiveMode, $timeout);
     }
@@ -141,7 +160,7 @@ class Client
      */
     protected function getPath(string $fileName = null)
     {
-        return sprintf('%s/%s', trim($this->path, '/'), $this->isEmpty($fileName) ? '' : $fileName);
+        return sprintf('%s/%s', trim($this->path, '/'), $this->variableHelper->isEmpty($fileName) ? '' : $fileName);
     }
 
     /**
@@ -160,7 +179,7 @@ class Client
     {
         $result = $this->executeCurl();
 
-        if ($this->isEmpty($result)) {
+        if ($this->variableHelper->isEmpty($result)) {
             return [];
         }
 
@@ -258,7 +277,7 @@ class Client
      */
     protected function executeCurl(string $fileName = null)
     {
-        $this->setCurlOption(CURLOPT_FTPLISTONLY, $this->isEmpty($fileName));
+        $this->setCurlOption(CURLOPT_FTPLISTONLY, $this->variableHelper->isEmpty($fileName));
         $this->setCurlOption(CURLOPT_URL, $this->getUrl($fileName));
 
         $result = @curl_exec($this->curlHandle);
@@ -269,32 +288,5 @@ class Client
         }
 
         return $result;
-    }
-
-    /**
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    private function isEmpty($value): bool
-    {
-        return ! is_bool($value) && empty($value) &&
-            (is_array($value) || is_object($value) || strlen(trim($value)) === 0);
-    }
-
-    /**
-     * @param array  $array
-     * @param string $key
-     * @param mixed  $defaultValue
-     *
-     * @return mixed|null
-     */
-    private function getValue(array $array, string $key, $defaultValue = null)
-    {
-        if (array_key_exists($key, $array)) {
-            return $array[ $key ];
-        }
-
-        return $defaultValue;
     }
 }

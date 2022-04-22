@@ -148,7 +148,7 @@ class Client
      *
      * @return string
      */
-    protected function getUrl(string $fileName = null)
+    protected function getUrl(string $fileName = null): string
     {
         return sprintf('%s://%s/%s', $this->useSsl ? 'ftps' : 'ftp', $this->hostName, $this->getPath($fileName));
     }
@@ -158,7 +158,7 @@ class Client
      *
      * @return string
      */
-    protected function getPath(string $fileName = null)
+    protected function getPath(string $fileName = null): string
     {
         return sprintf('%s/%s', trim($this->path, '/'), $this->variableHelper->isEmpty($fileName) ? '' : $fileName);
     }
@@ -175,7 +175,7 @@ class Client
      * @return array
      * @throws Exception
      */
-    public function ls()
+    public function ls(): array
     {
         $result = $this->executeCurl();
 

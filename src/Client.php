@@ -32,11 +32,19 @@ class Client
     private $useSsl = false;
 
     /**
-     * @param Variables $variableHelper
-     * @param Arrays    $arrayHelper
+     * @param Variables|null $variableHelper
+     * @param Arrays|null    $arrayHelper
      */
-    public function __construct(Variables $variableHelper, Arrays $arrayHelper)
+    public function __construct(Variables $variableHelper = null, Arrays $arrayHelper = null)
     {
+        if ($variableHelper === null) {
+            $variableHelper = new Variables();
+        }
+
+        if ($arrayHelper === null) {
+            $arrayHelper = new Arrays($variableHelper);
+        }
+
         $this->variableHelper = $variableHelper;
         $this->arrayHelper = $arrayHelper;
     }

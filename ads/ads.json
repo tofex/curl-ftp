@@ -1,0 +1,21 @@
+{
+    "global": {
+        "systemName": "tofex_curl_ftp"
+    },
+    "system": {
+        "serverNames": [
+            "cli"
+        ]
+    },
+    "cli": {
+        "imageName": "fewedev/cli",
+        "imageTag": "8.2",
+        "containerVolumes": [
+            "${systemPath}/..:/var/www/tofex/curl-ftp:me:w"
+        ],
+        "containerPrepareDockerScript": "cli/docker/prepare.sh",
+        "containerInstallDockerScript": "cli/docker/install.sh",
+        "bashPath": "/var/www/tofex/curl-ftp",
+        "bashUser": "me"
+    }
+}

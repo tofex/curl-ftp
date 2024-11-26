@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tofex\CurlFtp;
 
 use Exception;
-use Tofex\Help\Arrays;
-use Tofex\Help\Variables;
+use FeWeDev\Base\Arrays;
+use FeWeDev\Base\Variables;
 
 /**
  * @author      Andreas Knollmann
@@ -60,8 +62,6 @@ class Client
     }
 
     /**
-     * @param array $args
-     *
      * @throws Exception
      */
     public function open(array $args = [])
@@ -84,14 +84,6 @@ class Client
     }
 
     /**
-     * @param string $hostName
-     * @param int    $port
-     * @param string $userName
-     * @param string $password
-     * @param bool   $useSsl
-     * @param bool   $usePassiveMode
-     * @param int    $timeout
-     *
      * @throws Exception
      */
     public function connect(
@@ -151,36 +143,22 @@ class Client
         $this->useSsl = false;
     }
 
-    /**
-     * @param string|null $fileName
-     *
-     * @return string
-     */
-    protected function getUrl(string $fileName = null): string
+    protected function getUrl(?string $fileName = null): string
     {
         return sprintf('%s://%s/%s', $this->useSsl ? 'ftps' : 'ftp', $this->hostName, $this->getPath($fileName));
     }
 
-    /**
-     * @param string|null $fileName
-     *
-     * @return string
-     */
-    protected function getPath(string $fileName = null): string
+    protected function getPath(?string $fileName = null): string
     {
         return sprintf('%s/%s', trim($this->path, '/'), $this->variableHelper->isEmpty($fileName) ? '' : $fileName);
     }
 
-    /**
-     * @param string $path
-     */
     public function cd(string $path)
     {
         $this->path = $path;
     }
 
     /**
-     * @return array
      * @throws Exception
      */
     public function ls(): array
@@ -203,21 +181,15 @@ class Client
     }
 
     /**
-     * @param string $fileName
-     *
      * @return string|bool
      * @throws Exception
      */
     public function read(string $fileName)
     {
-        $result = $this->executeCurl($fileName);
-
-        return $result;
+        return $this->executeCurl($fileName);
     }
 
     /**
-     * @param string $fileName
-     *
      * @return string|bool
      * @throws Exception
      */
@@ -233,12 +205,9 @@ class Client
     }
 
     /**
-     * @param string $fileName
-     * @param string $src
-     *
      * @throws Exception
      */
-    public function write(string $fileName, string $src)
+    public function write(string $fileName, string $src): void
     {
         $tempDirectory = sys_get_temp_dir();
 
@@ -262,12 +231,9 @@ class Client
     }
 
     /**
-     * @param string $key
-     * @param mixed  $value
-     *
      * @throws Exception
      */
-    protected function setCurlOption(string $key, $value)
+    protected function setCurlOption(int $key, $value): void
     {
         $optionResult = @curl_setopt($this->curlHandle, $key, $value);
 
@@ -278,12 +244,10 @@ class Client
     }
 
     /**
-     * @param string|null $fileName
-     *
      * @return string|bool
      * @throws Exception
      */
-    protected function executeCurl(string $fileName = null)
+    protected function executeCurl(?string $fileName = null)
     {
         $this->setCurlOption(CURLOPT_FTPLISTONLY, $this->variableHelper->isEmpty($fileName));
         $this->setCurlOption(CURLOPT_URL, $this->getUrl($fileName));
